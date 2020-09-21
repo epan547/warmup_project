@@ -9,13 +9,6 @@ from geometry_msgs.msg import Twist, Vector3
 from math import pi
 from sensor_msgs.msg import LaserScan
 
-# def callback(msg):
-#     print(len(msg.ranges))
-
-# rospy.init_node('wall_follow')
-# sub = rospy.Subscriber('/scan', LaserScan, callback)
-
-# rospy.spin()
 
 class WallFollowNode(object):
     def __init__(self):
@@ -27,12 +20,9 @@ class WallFollowNode(object):
         self.angular = 0
 
     def process_laser(self, msg):
-        error = msg.ranges[315] - msg.ranges[245]
-        # print("Angle 1: ", msg.ranges[315], ", Angle 2:", msg.ranges[245])
-        # if error > 0:
-        #     vel_msg.angular.z = -k * error
-        # elif error < 0:
-        #     vel_msg.angular.z = k * error
+        p1 = msg.ranges[315] 
+        p2 = msg.ranges[225]
+        error = p1 - p2
         self.angular = self.k * error
         print(self.angular)
 
