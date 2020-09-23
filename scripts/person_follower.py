@@ -11,21 +11,28 @@ from math import pi
 from sensor_msgs.msg import LaserScan
 
 
-class WallFollowNode(object):
+class PersonFollowNode(object):
     def __init__(self):
-        rospy.init_node('wall_follow')
+        rospy.init_node('person_follow')
         rospy.Subscriber('/scan', LaserScan, self.process_laser)
         self.pub = rospy.Publisher('/cmd_vel', Twist, queue_size=10)
         self.desired_velocity = .5
+        self.desired_angle = 0
+        self.desired_distance = 0.5
         self.k = -2
         self.angular = 0
 
     def process_laser(self, msg):
-        p1 = msg.ranges[315] 
-        p2 = msg.ranges[225]
-        if np.isinf(p1): p1 = 1000
-        if np.isinf(p2): p2 = 1000
-        error = p1 - p2
+        distances = np.zeros(360)
+        print(len(msg.ranges))
+        for angle in range(len(msg.ranges)):
+            if np.isinf(angle):
+                distances[angle] = 1000
+            else:
+                distances[angle] = msg.ranges[angle]
+
+        angular_error = self.desired_angle - actual_angle
+        linear_error = self.desired_distance - actual_distance
         self.angular = self.k * error
         print(self.angular)
 
@@ -38,5 +45,5 @@ class WallFollowNode(object):
 
 
 if __name__ == '__main__':
-    wall = WallFollowNode()
+    wall = PersonFollowNode()
     wall.run()
