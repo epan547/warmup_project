@@ -7,24 +7,32 @@ import termios
 import rospy
 import numpy as np
 import math
-from geometry_msgs.msg import Twist, Vector3
+from std_msgs.msg import Header
+from geometry_msgs.msg import Twist, Vector3, PoseWithCovariance
+from nav_msgs.msg import Odometry
 from math import pi
 from sensor_msgs.msg import LaserScan
 from scipy.ndimage import gaussian_filter1d
 
 
-class PersonFollowNode(object):
+class ObstacleAvoidNode(object):
     def __init__(self):
-        rospy.init_node('person_follow')
+        rospy.init_node('obstacle_avoid')
+        rospy.Subscriber('/odom', Odometry, self.process_odom)
         rospy.Subscriber('/scan', LaserScan, self.process_laser)
         self.pub = rospy.Publisher('/cmd_vel', Twist, queue_size=10)
         self.desired_angle = 0
-        self.desired_distance = 0.5
-        self.linear_k = -1
+        self.desired_distance = 0
+        self.linear_k = -0.001
         self.angular_k = -.05
         self.angular_vel = 0
         self.linear_vel = 0
         self.sigma = 1
+
+    def process_odom(self, msg):
+        msg.header.frame_id = "base_link"
+        print(msg.pose)
+        #print(msg.header)
 
     def process_laser(self, msg):
         distances = np.zeros(361)
@@ -38,8 +46,9 @@ class PersonFollowNode(object):
         filtered_data = gaussian_filter1d(np.array(distances), self.sigma)
 
         # Get the index of the minimum in the filtered lists
-        min_index = np.where(filtered_data == min(filtered_data))
-        current_distance = min(filtered_data)
+        current_distance = max(filtered_data)
+        min_index = np.where(filtered_data == current_distance)
+        
 
         # Getting the first index with minimum distance (is an angle)
         current_angle = min_index[0][0]
@@ -55,7 +64,7 @@ class PersonFollowNode(object):
         # Calculate velocities using proportional control
         self.angular_vel = self.angular_k * angular_error
         self.linear_vel = self.linear_k * linear_error
-        print("Angular vel: ", self.angular_vel, ", Linear vel: ", self.linear_vel)
+        #print("Angular vel: ", self.angular_vel, ", Linear vel: ", self.linear_vel)
 
 
     def run(self):
@@ -66,5 +75,5 @@ class PersonFollowNode(object):
 
 
 if __name__ == '__main__':
-    wall = PersonFollowNode()
-    wall.run()
+    obstacle = ObstacleAvoidNode()
+    obstacle.run()
