@@ -9,6 +9,7 @@ import math
 from std_msgs.msg import Int8MultiArray
 from sensor_msgs.msg import LaserScan
 from nav_msgs.msg import Odometry
+from tf.transformations import euler_from_quaternion
 
 class NeatoController():
     "This class encompasses multiple behaviors for the simulated neato"
@@ -22,7 +23,7 @@ class NeatoController():
         self.linear_error = 0
         self.angular_error = 0
         self.linear_k = 0.1
-        self.angular_k = math.pi/2
+        self.angular_k = .005
         self.vel_msg = Twist()
         self.vel_pub = rospy.Publisher("cmd_vel", Twist, queue_size=10)
         rospy.Subscriber('scan', LaserScan, self.process_scan)
@@ -101,6 +102,7 @@ class NeatoController():
         rospy.sleep(2)
         self.vel_pub.publish(Twist(angular=Vector3(z=-math.pi/4)))
         rospy.sleep(2)
+        #make sure it's not moving when it goes back to teleop
         self.vel_msg.angular.z = 0
         self.vel_msg.linear.x = 0
         self.vel_pub.publish(self.vel_msg)
@@ -110,20 +112,28 @@ class NeatoController():
         pass
 
     def process_odom(self,msg):
+        #get our x and y position relative to the world origin"
         self.x = msg.pose.pose.position.x
         self.y = msg.pose.pose.position.y
-        self.rotation = math.degrees(msg.pose.pose.orientation.z)
+        # Orientation of the neato according to global reference frame (odom)
+        self.rotation = 180 - math.degrees(euler_from_quaternion([msg.pose.pose.orientation.w,msg.pose.pose.orientation.x,msg.pose.pose.orientation.y,msg.pose.pose.orientation.z])[0])
+        # distance between neato and target
         self.linear_error = math.sqrt(self.x**2 + self.y**2)
-        self.angular_error = int(math.degrees(math.atan(self.y/self.x)))
-        print(self.rotation)
+        # Desired direction of the neato, in order to get to target, according to global reference frame
+        self.vector_to_target = 180 + int(math.degrees(math.atan(self.y/self.x)))
+        if self.vector_to_target > 360:
+            self.vector_to_target = self.vector_to_target - 360
+        self.angular_error = -(self.rotation - self.vector_to_target)
 
     def origin(self):
-        if self.linear_error < 0.25:
+        if self.linear_error < 1:
             self.state = "teleop"
         else:
-            self.vel_msg.angular.z = self.angular_k * self.angular_error
-            self.vel_msg.linear.x = self.linear_k * self.linear_error
-            self.vel_pub.publish(self.vel_msg) # send instructions to the robot
+            self.angular_vel = self.angular_k * self.angular_error
+            self.linear_vel = self.linear_k * self.linear_error
+            # send instructions to the robot
+            self.vel_pub.publish(Twist(linear=Vector3(x=self.linear_vel), angular=Vector3(z=self.angular_vel)))
+            #print("Angular velocity: ", self.angular_vel, ", Linear velocity: ", self.linear_vel)
             rospy.Rate(10).sleep
 
 if __name__ == '__main__':
