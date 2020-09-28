@@ -4,11 +4,12 @@ Eamon O'Brien and Emma Pan
 
 ## Teleop
 Our teleop code uses the keys w, a, s, d, and space to drive the robot. To stop the neato, we used the space key. W is forward, a turns the neato counterclockwise, s is backward, and d is clockwise. The neato will continue in the direction of a pressed key until a different key is pressed.
+
 ![teleop-image](https://github.com/epan547/warmup_project/blob/master/media/teleop.png)
 
 
 ## Drive Square
-![drive-square-video](https://gifs.com/gif/drivesquare-jZ3Yov)
+![drive-square-video](https://github.com/epan547/warmup_project/blob/master/media/drive_square.gif)
 
 Our drive square implementation utilizes the `rospy.sleep()` functionality to time different behaviors. To continuously drive in a square, the script runs a `while` loop, in which  the neato is instructed to drive forwards 1 meter, and then rotate 90 degrees counterclockwise. To rotate the neato in a right angle in the two seconds that this command is sleeping, we divided the radians of a 90 degree turn (pi/2 radians) by 2 (seconds), resulting in an angular velocity of pi/4. Since the forward velocity and time spent moving forward is always the same, the neato always moves forwards the same distance between right-angle rotations, thus creating a square. 
 
@@ -20,7 +21,7 @@ Our wall following is achieved with a proportional controller. We detect the ang
 
 ## Person Following
 
-![person-follow](https://gifs.com/gif/person-follow-oV5ynk)
+![person-follow](https://github.com/epan547/warmup_project/blob/master/media/person_follow.gif)
 
 For person-following, we were able to get surprisingly robust performance from a very simple method. Our code takes a full 360° laser scan, replaces any values of infinity with 1000, and passes the scan through a gaussian filter. If plotted, this filtered data looks like a line at 1000 which dips down like a bell curve at each angle where the neato detected an object. The closer or larger the object, the lower the value.
 
