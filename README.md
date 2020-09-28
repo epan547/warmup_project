@@ -31,11 +31,11 @@ We use a proportional controller to drive the angular and linear velocity of the
 
 ## Obstacle Avoidance
 
-The portion of our obstacle avoidance code that actually directs the neato away from obstacles is the same as our person following script, except for that our error is based on the maximum value of the filtered scan instead of the minimum. This way, the neato is encouraged to move in the emptiest direction in its view. Objects repel it more as they get nearer, larger, and more closely grouped.
+For our implementation of obstacle avoidance, we have written a script for avoiding obstacles (`obstacle_avoid_1.py`), and a script for navigating towards a given target point (`obstacle_avoid.py`). Unfortunately, due to a bug in our GPU for gazebo, we lost a significant chunk of testing time on Saturday and Sunday, and dind't get a chance to integrate these two behaviors. 
 
-Unfortunately, something about our environments stopped working on sunday, and code that had previously been perfectly functional no longer did anything. This manifested in not being able to get any laserscan readings. Because of this, we haven’t been able to implement obstacle avoidance.
+Our script for navigating the neato away from obstacles is the same as our person following script, except that our error is based on the maximum value of the filtered scan instead of the minimum. This way, the neato is instructed to move towards the emptiest direction in its view. Objects repel it more as they get nearer, larger, and more closely grouped.
 
-However, we were able to implement the other part of obstacle avoidance, in a way that will be very helpful when our laser scanning works again. By listening to the odometry node, we can find the position and angle of the neato relative to the world’s coordinate frame. This is enough information to set an arbitrary target in space, and move to it. 
+Our script for navigating the neato towards a given target point in the global reference frame utlizes odometry data. By subscribing to the neato's `/odom` topic we can find the position and angle of the neato relative to the world’s coordinate frame. This is enough information to set an arbitrary target in space, and navigate towards it.
 
 The orientation of the neato was difficult to get from odometry, and when we did, it was in a coordinate frame 180 degrees rotated from the world frame, and in the reverse direction. We fixed this with the following line:
   `self.rotation = 180 -             math.degrees(euler_from_quaternion([msg.pose.pose.orientation.w,msg.pose.pose.orientation.x,msg.pose.pose.orientation.y,msg.pose.pose.orientation.z])[0])`
@@ -52,6 +52,9 @@ Finally,
   `self.angular_error = -(self.rotation - self.vector_to_target)`
 Gives us the difference between the current angle between the neato’s heading and the heading that would take it directly to the target.
 Like with the person following code, we put this angular error and a linear error into two proportional controllers and were pleasantly surprised by the performance.
+
+
+
 
 ## Finite State Behavior
 
