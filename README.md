@@ -15,7 +15,8 @@ Our drive square implementation utilizes the `rospy.sleep()` functionality to ti
 
 ## Wall Following
 
-![wall-follow-diagram](https://github.com/epan547/warmup_project/blob/master/media/wall_follow.jpeg)
+<img src="https://github.com/epan547/warmup_project/blob/master/media/wall_follow.jpeg" width="300">
+
 Our wall following is achieved with a proportional controller. We detect the angle between the neato and the wall by measuring at two distances, 90 degrees away from each other, and calculating the error between them. If d1 is greater, the neato will rotate clockwise, so that d1 and d2 become equal with each other, and the neato becomes parallel with the wall. Conversely, if d2 is greater, then the neato will rotate counter-clockwise to compensate. We experimented with a PID controller, but have not successfully implemented it yet.
 
 ## Person Following
