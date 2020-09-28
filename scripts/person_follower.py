@@ -20,7 +20,7 @@ class PersonFollowNode(object):
         self.pub = rospy.Publisher('/cmd_vel', Twist, queue_size=10)
         self.desired_angle = 0
         self.desired_distance = 0.5
-        self.linear_k = -.05
+        self.linear_k = -.5
         self.angular_k = -.05
         self.angular_vel = 0
         self.linear_vel = 0

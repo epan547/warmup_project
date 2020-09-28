@@ -21,14 +21,15 @@ class WallFollowNode(object):
         self.angular = 0
 
     def process_laser(self, msg):
+        # Get two distances from the right of the neato, 90 degrees apart from each other
         p1 = msg.ranges[315] 
         p2 = msg.ranges[225]
-        print(p1, ", p2: ", p2)
+        # Replace infinite values with real numbers
         if np.isinf(p1): p1 = 1000
         if np.isinf(p2): p2 = 1000
+        # Calculate the difference, multiply by proportional control constant
         error = p1 - p2
         self.angular = self.k * error
-        print(self.angular)
 
 
     def run(self):

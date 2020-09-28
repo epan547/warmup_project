@@ -35,9 +35,6 @@ class NeatoController():
     def run(self):
         """ The run loop repeatedly executes the current state function.  Each state function will return a function
         corresponding to the next state to run. """
-        # this sleep is to allow any subscribers to cmd_vel to establish a connection to our publisher.  This is only
-        # needed in the case where you send the velocity commands once (in some ways sending the commands repeatedly is
-        # more robust.
         rospy.sleep(1)
         while not rospy.is_shutdown():
             if self.state == "teleop":
@@ -81,35 +78,23 @@ class NeatoController():
                 self.vel_msg.angular.z = 0
                 self.vel_msg.linear.x = 0
                 self.state = "origin"
-            self.vel_pub.publish(self.vel_msg) # send instructions to the robot
+            # send instructions to the neato
+            self.vel_pub.publish(self.vel_msg) 
             rospy.Rate(10).sleep
 
 
     def square(self):
-        self.vel_pub.publish(Twist(linear=Vector3(x=1)))
-        rospy.sleep(2)
-        self.vel_pub.publish(Twist(angular=Vector3(z=-math.pi/4)))
-        rospy.sleep(2)
-        self.vel_pub.publish(Twist(linear=Vector3(x=1)))
-        rospy.sleep(2)
-        self.vel_pub.publish(Twist(angular=Vector3(z=-math.pi/4)))
-        rospy.sleep(2)
-        self.vel_pub.publish(Twist(linear=Vector3(x=1)))
-        rospy.sleep(2)
-        self.vel_pub.publish(Twist(angular=Vector3(z=-math.pi/4)))
-        rospy.sleep(2)
-        self.vel_pub.publish(Twist(linear=Vector3(x=1)))
-        rospy.sleep(2)
-        self.vel_pub.publish(Twist(angular=Vector3(z=-math.pi/4)))
-        rospy.sleep(2)
+        for i in range(4):
+            self.vel_pub.publish(Twist(linear=Vector3(x=1)))
+            rospy.sleep(2)
+            self.vel_pub.publish(Twist(angular=Vector3(z=-math.pi/4)))
+            rospy.sleep(2)
         #make sure it's not moving when it goes back to teleop
         self.vel_msg.angular.z = 0
         self.vel_msg.linear.x = 0
         self.vel_pub.publish(self.vel_msg)
         self.state = "teleop"
 
-    def process_scan(self,msg):
-        pass
 
     def process_odom(self,msg):
         #get our x and y position relative to the world origin"
@@ -126,9 +111,11 @@ class NeatoController():
         self.angular_error = -(self.rotation - self.vector_to_target)
 
     def origin(self):
+        # Navigates the neato towards the origin of the global / odometry coordinate system
         if self.linear_error < 1:
             self.state = "teleop"
         else:
+            # Apply proportional control constants
             self.angular_vel = self.angular_k * self.angular_error
             self.linear_vel = self.linear_k * self.linear_error
             # send instructions to the robot
