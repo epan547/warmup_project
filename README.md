@@ -69,7 +69,7 @@ For all object-oriented scripts, the class object is initialized and its functio
 
 ## Challenges
 
-The learning curve for this project was extremely steep for both of us, and it was a challenge to figure out each stage of the project. The aspect of the project that was most difficult, and took more than half our time, was getting odometry information, and translating it between coordinate frames. At first, we were running up against a bug in the gazebo environment, but after that was fixed, the information was still challenging to use. It took a while to realize the orientation was stored as a quaternion, and another while to figure out how to use that.
+The learning curve for this project was extremely steep for both of us, since neither of us had much ROS experience before this class. Initially, it was a challenge to figure out each stage of the project. The aspect of the project that was most difficult, and took more than half our time, was getting odometry information, and translating it between coordinate frames. At first, we were running up against a bug in the gazebo environment, but after that was fixed, the information was still challenging to use. It took a while to realize the orientation was stored as a quaternion, and another while to figure out how to use that.
 
 Once we were able to establish the angle between a target and our robot, the distance between them, and the orientation of the neato relative to the world, we had to do some fairly tricky geometry to make our controller guide it to the target.
 
