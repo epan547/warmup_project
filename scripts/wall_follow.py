@@ -23,6 +23,7 @@ class WallFollowNode(object):
     def process_laser(self, msg):
         p1 = msg.ranges[315] 
         p2 = msg.ranges[225]
+        print(p1, ", p2: ", p2)
         if np.isinf(p1): p1 = 1000
         if np.isinf(p2): p2 = 1000
         error = p1 - p2
