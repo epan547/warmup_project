@@ -47,6 +47,7 @@ To find the angle between the neato’s position and the origin, we used tan2, a
        if self.vector_to_target > 360:
            self.vector_to_target = self.vector_to_target - 360`
 We added 180 to that angle so that our subtraction to find the error would work out more nicely.
+
 Finally,
   `self.angular_error = -(self.rotation - self.vector_to_target)`
 Gives us the difference between the current angle between the neato’s heading and the heading that would take it directly to the target.
@@ -69,6 +70,7 @@ For all object-oriented scripts, the class object is initialized and its functio
 ## Challenges
 
 The learning curve for this project was extremely steep for both of us, and it was a challenge to figure out each stage of the project. The aspect of the project that was most difficult, and took more than half our time, was getting odometry information, and translating it between coordinate frames. At first, we were running up against a bug in the gazebo environment, but after that was fixed, the information was still challenging to use. It took a while to realize the orientation was stored as a quaternion, and another while to figure out how to use that.
+
 Once we were able to establish the angle between a target and our robot, the distance between them, and the orientation of the neato relative to the world, we had to do some fairly tricky geometry to make our controller guide it to the target.
 
 ## Improvements
@@ -80,4 +82,5 @@ Lastly, if given more time, we would have converted the proportional controller 
 
 # Key Takeaways          
 **Find the documentation**: For a few of our challenges, we struggled because we had small syntactical errors that let the program run (ie. not providing the marker with enough information, or using the wrong subscriber name), and couldn’t figure out what was wrong. If we had found the documentation for these objects earlier, we likely would have had a smoother debugging process later.
+
 **Program more incrementally**: There are a lot of things that can go wrong in this situation, with multiple environments and scripts speaking to each other asynchronously to accomplish a complex task. We were writing our behaviors somewhat incrementally, but if we had written even smaller blocks of code and tested more frequently, we probably would have made faster progress.
