@@ -37,28 +37,34 @@ Our script for navigating the neato away from obstacles is the same as our perso
 
 Our script for navigating the neato towards a given target point in the global reference frame utlizes odometry data. By subscribing to the neato's `/odom` topic we can find the position and angle of the neato relative to the world’s coordinate frame. This is enough information to set an arbitrary target in space, and navigate towards it.
 
-The orientation of the neato was difficult to get from odometry, and when we did, it was in a coordinate frame 180 degrees rotated from the world frame, and in the reverse direction. We fixed this with the following line:
+In order to get the orientation of the neato in the global reference frame, we used the odometry orientation data `msg.pose.pose.orientation`, and converted it from quaternion to euler, for simplicity of calculations. By printing these values, we discovered that the orientation coordinate frame is 180 degrees rotated from the world frame. We fixed this by simply subtracting the odom orientation angle value from 180 degrees: 
   `self.rotation = 180 -             math.degrees(euler_from_quaternion([msg.pose.pose.orientation.w,msg.pose.pose.orientation.x,msg.pose.pose.orientation.y,msg.pose.pose.orientation.z])[0])`
-
-To get the distance from the neato to a target, which for the purposes of this script was always the origin, we used pythagoras: 
-  `self.linear_error = math.sqrt(self.x**2 + self.y**2)`
-To find the angle between the neato’s position and the origin, we used tan2, a python function which accounts for the limited range of the tangent function.
-   `self.vector_to_target = 180 + int(math.degrees(math.atan(self.y/self.x)))
+  
+To find the angle between the neato’s position and the origin, we used `math.atan2()`, a python function which accounts for the limited range of the arc-tangent function. We added 180 to that angle so that this heading would point in the direction that the neato should travel to get to the target, instead of from target to neato.
+   `self.vector_to_target = 180 + int(math.degrees(math.atan2(self.y,self.x)))
        if self.vector_to_target > 360:
            self.vector_to_target = self.vector_to_target - 360`
-We added 180 to that angle so that our subtraction to find the error would work out more nicely.
 
-Finally,
+
+Finally,to calculate the difference between the neato's heading and the heading that would direct it towards the target, we used simple subtraction of these two angles. The resulting 'angular error' is what we input to proportional control, to get the neato's angular velocity:
   `self.angular_error = -(self.rotation - self.vector_to_target)`
-Gives us the difference between the current angle between the neato’s heading and the heading that would take it directly to the target.
-Like with the person following code, we put this angular error and a linear error into two proportional controllers and were pleasantly surprised by the performance.
 
+To calculate the distance from the neato to the target point, we first calculated the difference between the neato's and the target's current x and y positions: 
+   `diff_x = self.target_x - global_x
+    diff_y = self.target_y - global_y`
+
+Next, we used the pythagorean theorem, to get the actual distance between the neato and its target. This 'linear error' is what we input to proportional control, to calculate the neato's linear velocity: 
+  `self.linear_error = math.sqrt((diff_x**2) + (diff_y**2))`
+  
+Similarly to the person following code, we put this angular error and a linear error into two proportional controllers and were pleasantly surprised by the performance.
+
+In order to integrate these two functionalities, our plan was to use the target heading to influence the gaussian-filtered data that the neato uses to avoid obstacles. If the neato is using this data to identify the maximum point (farthest away), and the target angle's distance is increased by a sizeable amount, then the neato should navigate towards the target, unless an obstacle is in its way, subtracting from the gaussian curve, and causing the neato to steer away.
 
 
 
 ## Finite State Behavior
 
-In our finite state controller, we made a class for the neato which encapsulates multiple behaviors. On each interaction of the loop, it checks a parameter called self.state, which tells it which behavior to follow. Each behavior is a separate function.
+In our finite state controller, we created a class for the neato which encapsulates multiple behaviors. On each interaction of the loop, it checks a parameter called self.state, which tells it which behavior to follow. Each behavior is a separate function.
 The included behaviors are teleop, go to origin, and drive in square. It begins in teleop by default, and returns to it when it completes the other two behaviors, as shown in the diagram:
 
 ![finite-state-diagram](https://github.com/epan547/warmup_project/blob/master/media/rsz_finite_state_diagram.jpg)
@@ -83,7 +89,8 @@ We like the way that we implemented the finite state controller, with command ke
 We also never managed to avoid obstacles very well. When we’re able to get the laser scan working again, we will have odometry and scanning working at the same time, and should be able to combine them to make something effective. So far, we have never had both of those working at the same time.
 Lastly, if given more time, we would have converted the proportional controller in our person-following and wall-following scripts to be a PD or PID controller. The script in which we attempted this before moving on for the sake of time can be found in our ‘scripts’ folder, named ‘wall_follow_pid.py’.
 
-# Key Takeaways          
+# Key Takeaways   
+
 **Find the documentation**: For a few of our challenges, we struggled because we had small syntactical errors that let the program run (ie. not providing the marker with enough information, or using the wrong subscriber name), and couldn’t figure out what was wrong. If we had found the documentation for these objects earlier, we likely would have had a smoother debugging process later.
 
 **Program more incrementally**: There are a lot of things that can go wrong in this situation, with multiple environments and scripts speaking to each other asynchronously to accomplish a complex task. We were writing our behaviors somewhat incrementally, but if we had written even smaller blocks of code and tested more frequently, we probably would have made faster progress.
