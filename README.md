@@ -3,7 +3,7 @@
 Eamon O'Brien and Emma Pan
 
 ## Teleop
-Our teleop code uses the keys w, a, s, d, and space to drive the robot. To stop the neato, we used the space key. W is forward, a turns the neato counterclockwise, s is backward, and d is clockwise. The neato will continue in the direction of a pressed key until a different key is pressed.
+Our teleop code uses the keys w, a, s, d, and space to drive the robot. To stop the neato, we used the space key. W is forward, a turns the neato counterclockwise, s is backward, and d is clockwise. The neato will continue in the direction of a pressed key until a different key is pressed. To drive the neato, we created a publisher with the topic `/cmd_vel`. We used this publisher to publish an angular velocity for neato rotation, and to publish a linear velocity to drive the neato forward or backward. Below is a diagram of our teleop command key mapping.
 
 ![teleop-image](https://github.com/epan547/warmup_project/blob/master/media/teleop.png)
 
@@ -17,17 +17,17 @@ Our drive square implementation utilizes the `rospy.sleep()` functionality to ti
 
 <img src="https://github.com/epan547/warmup_project/blob/master/media/wall_follow.jpeg" width="300">
 
-Our wall following is achieved with a proportional controller. We detect the angle between the neato and the wall by measuring at two distances, 90 degrees away from each other, and calculating the error between them. If d1 is greater, the neato will rotate clockwise, so that d1 and d2 become equal with each other, and the neato becomes parallel with the wall. Conversely, if d2 is greater, then the neato will rotate counter-clockwise to compensate. We experimented with a PID controller, but have not successfully implemented it yet.
+Our wall following is achieved with a proportional controller. We detect the angle between the neato and the wall by measuring at two distances, 90 degrees away from each other, and calculating the error between them. If d1 is greater, the neato will rotate clockwise, so that d1 and d2 become equal with each other, and the neato becomes parallel with the wall. Conversely, if d2 is greater, then the neato will rotate counter-clockwise to compensate. The linear velocity of the neato is kept at a constant value. In this way, as a neato drives forwards along a wall, it rotates until one side is parallel with the wall. We experimented with a PID controller, but have not successfully implemented it yet. Our current implementation works well when the neato starts at an angle, but breaks down in circumstances where the wall is on another side of the neato, or when the neato is in an empty world. For example, if a neato is heading towards a wall head-on, it will not be able to detect it.
 
 ## Person Following
 
 ![person-follow](https://github.com/epan547/warmup_project/blob/master/media/person_follow.gif)
 
-For person-following, we were able to get surprisingly robust performance from a very simple method. Our code takes a full 360° laser scan, replaces any values of infinity with 1000, and passes the scan through a gaussian filter. If plotted, this filtered data looks like a line at 1000 which dips down like a bell curve at each angle where the neato detected an object. The closer or larger the object, the lower the value.
+For person-following, we were able to get surprisingly robust performance from a very simple method. Our code takes a full 360° laser scan, replaces any values of infinity with 1000, and passes the data through a gaussian filter. If plotted, this filtered data looks like a line at 1000 which dips down like a bell curve at each angle where the neato detected an object. The closer or larger the object, the lower the value. In a non-simulated environment, the gaussian filter would help mitigate the effect of noise in the laserscan. From the minimum of this filtered data, we obtain a distance and angle for where the neato predicts a person to be.
 
-The neato then calculates an angular error and a linear error. The angular error is the difference between the desired angle between the neato and the nearest object, zero, and the actual angle between it and the minimum value in our filtered data. The linear error is the difference between the distance detected at the angle with the lowest value, and our desired distance from the nearest object, 0.5. If both errors were 0, our neato would be exactly half a meter from the nearest object, and facing directly toward it.
+Once the neato has a prediction of the person's location, we calculate an angular and a linear error, which give us the difference between where the neato currently is and where we want it to be. The angular error is the difference between the desired angle for the neato to face a person, zero, and the actual angle between it and the desired orientation. The linear error is the difference between the predicted distance from the person, and our desired distance, which we set to 0.5 meters. If both errors were 0, our neato would be exactly half a meter from the nearest object, and facing directly toward it.
 
-We use a proportional controller to drive the angular and linear velocity of the neato based on these two errors. This makes the neato move efficiently and quickly toward an object when it is placed anywhere in its range. When it reaches its target distance, it jitters back and forth a bit, because there is no daming in the system. Our first step to fix that would be to put a derivative term into our controller.
+We use a proportional controller to drive the angular and linear velocity of the neato based on these two errors. This makes the neato move efficiently and quickly towards an object when it is placed anywhere in its range. When it reaches its target distance, it jitters back and forth a bit, because there is currently no damping in the system. If we had more time, our first step to fix that would be to put a derivative term into our controller.
 
 ## Obstacle Avoidance
 
