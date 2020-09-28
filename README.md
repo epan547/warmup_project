@@ -15,7 +15,8 @@ Our drive square implementation utilizes the `rospy.sleep()` functionality to ti
 
 ## Wall Following
 
-![wall-follow-diagram](https://github.com/epan547/warmup_project/blob/master/media/wall_follow.jpeg)
+<img src="https://github.com/epan547/warmup_project/blob/master/media/wall_follow.jpeg" width="300">
+
 Our wall following is achieved with a proportional controller. We detect the angle between the neato and the wall by measuring at two distances, 90 degrees away from each other, and calculating the error between them. If d1 is greater, the neato will rotate clockwise, so that d1 and d2 become equal with each other, and the neato becomes parallel with the wall. Conversely, if d2 is greater, then the neato will rotate counter-clockwise to compensate. We experimented with a PID controller, but have not successfully implemented it yet.
 
 ## Person Following
@@ -54,7 +55,7 @@ Like with the person following code, we put this angular error and a linear erro
 In our finite state controller, we made a class for the neato which encapsulates multiple behaviors. On each interaction of the loop, it checks a parameter called self.state, which tells it which behavior to follow. Each behavior is a separate function.
 The included behaviors are teleop, go to origin, and drive in square. It begins in teleop by default, and returns to it when it completes the other two behaviors, as shown in the diagram:
 
-![finite-state-diagram](https://github.com/epan547/warmup_project/blob/master/media/finite_state_diagram.jpeg)
+<img src="https://github.com/epan547/warmup_project/blob/master/media/finite_state_diagram.jpeg" height="600">
 
 In this structure, we could easily incorporate additional states by assigning them to the numbers 3-9.
 
