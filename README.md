@@ -55,7 +55,7 @@ Like with the person following code, we put this angular error and a linear erro
 In our finite state controller, we made a class for the neato which encapsulates multiple behaviors. On each interaction of the loop, it checks a parameter called self.state, which tells it which behavior to follow. Each behavior is a separate function.
 The included behaviors are teleop, go to origin, and drive in square. It begins in teleop by default, and returns to it when it completes the other two behaviors, as shown in the diagram:
 
-![finite-state-diagram](https://github.com/epan547/warmup_project/blob/master/media/finite_state_diagram.jpeg)
+<img src="https://github.com/epan547/warmup_project/blob/master/media/finite_state_diagram.jpeg" height="600">
 
 In this structure, we could easily incorporate additional states by assigning them to the numbers 3-9.
 
