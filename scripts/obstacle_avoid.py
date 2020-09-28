@@ -53,7 +53,7 @@ class ObstacleAvoidNode(object):
         rotation = 180 - math.degrees(euler_from_quaternion([msg.pose.pose.orientation.w,msg.pose.pose.orientation.x,msg.pose.pose.orientation.y,msg.pose.pose.orientation.z])[0])
         
         # Desired direction of the neato, in order to get to target, according to global reference frame
-        vector_to_target = 180 + int(math.degrees(math.atan(global_y/global_x)))
+        vector_to_target = 180 + int(math.degrees(math.atan2(global_y,global_x)))
         if vector_to_target > 360:
             vector_to_target = vector_to_target - 360
         
