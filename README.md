@@ -2,8 +2,6 @@
 # Warmup Project
 Eamon O'Brien and Emma Pan
 
-For each behavior, describe the problem at a high-level. Include any relevant diagrams that help     explain your approach.  Discuss your strategy at a high-level and include any tricky decisions that had to be made to realize a successful implementation. 
-
 ## Teleop
 Our teleop code uses the keys w, a, s, d, and space to drive the robot. To stop the neato, we used the space key. W is forward, a turns the neato counterclockwise, s is backward, and d is clockwise. The neato will continue in the direction of a pressed key until a different key is pressed.
 ![teleop-image](https://github.com/epan547/warmup_project/blob/master/media/teleop.png)
@@ -60,8 +58,7 @@ The included behaviors are teleop, go to origin, and drive in square. It begins 
 In this structure, we could easily incorporate additional states by assigning them to the numbers 3-9.
 
 ## Code Structure
-
-How was your code structured? Make sure to include a sufficient detail about the object-oriented structure you used for your project.     
+  
 The code was mostly organized in an object-oriented manner. Each node is initialized in a class, and each subscriber is defined in its own method. The publisher for velocity is updated and published in a method called “run”, wrapped in a while loop that continues until the user inputs `ctrl + C`.
 For all object-oriented scripts, the class object is initialized and its functionality is run in an `if __name__ == “__main__”` function. We have commented the code and used descriptive variable names where possible.
 
