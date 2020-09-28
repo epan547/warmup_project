@@ -36,14 +36,14 @@ Unfortunately, something about our environments stopped working on sunday, and c
 However, we were able to implement the other part of obstacle avoidance, in a way that will be very helpful when our laser scanning works again. By listening to the odometry node, we can find the position and angle of the neato relative to the world’s coordinate frame. This is enough information to set an arbitrary target in space, and move to it. 
 
 The orientation of the neato was difficult to get from odometry, and when we did, it was in a coordinate frame 180 degrees rotated from the world frame, and in the reverse direction. We fixed this with the following line:
-  self.rotation = 180 -             math.degrees(euler_from_quaternion([msg.pose.pose.orientation.w,msg.pose.pose.orientation.x,msg.pose.pose.orientation.y,msg.pose.pose.orientation.z])[0])
+  `self.rotation = 180 -             math.degrees(euler_from_quaternion([msg.pose.pose.orientation.w,msg.pose.pose.orientation.x,msg.pose.pose.orientation.y,msg.pose.pose.orientation.z])[0])`
 
 To get the distance from the neato to a target, which for the purposes of this script was always the origin, we used pythagoras: 
   `self.linear_error = math.sqrt(self.x**2 + self.y**2)`
 To find the angle between the neato’s position and the origin, we used tan2, a python function which accounts for the limited range of the tangent function.
-   self.vector_to_target = 180 + int(math.degrees(math.atan(self.y/self.x)))
+   `self.vector_to_target = 180 + int(math.degrees(math.atan(self.y/self.x)))
        if self.vector_to_target > 360:
-           self.vector_to_target = self.vector_to_target - 360
+           self.vector_to_target = self.vector_to_target - 360`
 We added 180 to that angle so that our subtraction to find the error would work out more nicely.
 Finally,
   `self.angular_error = -(self.rotation - self.vector_to_target)`
